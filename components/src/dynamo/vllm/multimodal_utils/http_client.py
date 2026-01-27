@@ -18,6 +18,8 @@ from typing import Optional
 
 import httpx
 
+from dynamo.common.url_validator import URLValidationError, validate_url
+
 logger = logging.getLogger(__name__)
 
 # Global HTTP client instance
@@ -45,3 +47,41 @@ def get_http_client(timeout: float = 60.0) -> httpx.AsyncClient:
         logger.info(f"Shared HTTP client initialized with timeout={timeout}s")
 
     return _global_http_client
+
+
+async def fetch_url(
+    url: str, timeout: float = 60.0, validate: bool = True
+) -> httpx.Response:
+    """
+    Fetch a URL with optional URL validation.
+
+    This function validates the URL against the allowlist before making the
+    request to protect against SSRF attacks.
+
+    Args:
+        url: The URL to fetch
+        timeout: Timeout for the HTTP request
+        validate: Whether to validate the URL against the allowlist (default: True)
+
+    Returns:
+        The HTTP response
+
+    Raises:
+        URLValidationError: If the URL is not in the allowlist
+        httpx.HTTPError: If the HTTP request fails
+    """
+    if validate:
+        validate_url(url)
+
+    client = get_http_client(timeout)
+    response = await client.get(url)
+    response.raise_for_status()
+    return response
+
+
+__all__ = [
+    "get_http_client",
+    "fetch_url",
+    "validate_url",
+    "URLValidationError",
+]

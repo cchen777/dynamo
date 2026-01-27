@@ -23,6 +23,8 @@ from urllib.parse import urlparse
 import httpx
 from PIL import Image
 
+from dynamo.common.url_validator import validate_url
+
 from .http_client import get_http_client
 
 logger = logging.getLogger(__name__)
@@ -65,6 +67,9 @@ class ImageLoader:
                 except binascii.Error as e:
                     raise ValueError(f"Invalid base64 encoding: {e}")
             elif parsed_url.scheme in ("http", "https"):
+                # Validate URL against allowlist before making the request
+                validate_url(image_url)
+
                 http_client = get_http_client(self._http_timeout)
 
                 response = await http_client.get(image_url)

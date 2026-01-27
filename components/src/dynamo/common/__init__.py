@@ -9,10 +9,11 @@ Dynamo backends and components.
 
 Main submodules:
     - config_dump: Configuration dumping and system diagnostics utilities
+    - url_validator: URL validation and allowlist filtering for SSRF protection
     - utils: Common utilities including environment and prometheus helpers
 """
 
-from dynamo.common import config_dump, utils
+from dynamo.common import config_dump, url_validator, utils
 
 try:
     from ._version import __version__
@@ -24,4 +25,4 @@ except Exception:
     except Exception:
         __version__ = "0.0.0+unknown"
 
-__all__ = ["__version__", "config_dump", "utils"]
+__all__ = ["__version__", "config_dump", "url_validator", "utils"]
